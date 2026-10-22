@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>เท่าเทียม — แพลตฟอร์มการเรียนรู้ปลอดภัย (Google Sheets Cloud Sync)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#090d16;--surface:#131b2e;--surface-hover:#1e293b;
+  --text:#f8fafc;--muted:#94a3b8;--border:#1e293b;
+  --primary:#8b5cf6;--primary-glow:rgba(139, 92, 246, 0.4);
+  --accent:#06b6d4;--mint:#10b981;--danger:#f43f5e;
+  --font-clean: "Prompt", sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;color:var(--text);
+  font-family:var(--font-clean);
+  font-size:15px;line-height:1.7;
+  background: radial-gradient(circle at 10% 20%, rgba(139,92,246,0.15) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(6,182,212,0.15) 0%, transparent 40%),
+              var(--bg);
+  min-height:100vh;
+}
+button,input,textarea,select{font-family:var(--font-clean);font-size:15px;color:var(--text);}
+button{cursor:pointer;border:none;border-radius:14px;padding:12px 22px;font-weight:600;transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1);}
+button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 20px var(--primary-glow);filter:brightness(1.1);}
+button:disabled{opacity:.5;cursor:wait}
+.primary{background:linear-gradient(135deg, #8b5cf6, #6366f1);color:white;box-shadow:0 4px 15px rgba(139,92,246,0.3);}
+.ghost{background:var(--surface);border:1px solid var(--border);color:var(--muted);}
+.ghost:hover{color:var(--text);border-color:var(--primary);background:var(--surface-hover);}
+.danger{background:linear-gradient(135deg, #f43f5e, #e11d48);color:white;}
+.wrap{max-width:1200px;margin:auto;padding:24px}
+header{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.brand{display:flex;gap:12px;align-items:center;font-size:26px;font-weight:700;background:linear-gradient(90deg,#c084fc,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo{
+  width:48px;height:48px;border-radius:16px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#8b5cf6,#06b6d4);color:white;font-size:24px;
+  box-shadow:0 0 25px rgba(139,92,246,0.6);
+}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  padding:28px;box-shadow:0 15px 35px rgba(0,0,0,0.4);margin-bottom:20px;
+  backdrop-filter:blur(12px);transition:all 0.3s ease;
+}
+.card:hover{border-color:rgba(139,92,246,0.4);box-shadow:0 20px 40px rgba(139,92,246,0.1);}
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:center;margin:40px 0}
+h1,h2,h3,.page-title{font-weight:600;line-height:1.4;color:#f8fafc;}
+h1{font-size:clamp(30px,4vw,44px);margin:12px 0;letter-spacing:-0.5px;}
+h2{font-size:23px;margin:0 0 16px}
+h3{font-size:18px;margin:0 0 10px}
+p{margin:10px 0}
+.muted,small{color:var(--muted)}
+.kicker{color:#c084fc;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.hero-art{background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(6,182,212,0.12));padding:40px;border-radius:30px;border:1px solid rgba(139,92,246,0.2)}
+.quote{background:rgba(9,13,22,0.7);padding:28px;border-radius:22px;border:1px solid var(--border)}
+.track{height:10px;background:var(--border);border-radius:20px;overflow:hidden;margin:14px 0}
+.fill{height:100%;background:linear-gradient(90deg,#8b5cf6,#06b6d4);border-radius:20px;box-shadow:0 0 10px rgba(6,182,212,0.5)}
+.notice{
+  padding:16px 20px;border-radius:16px;background:rgba(16,185,129,0.1);
+  border:1px solid rgba(16,185,129,0.3);color:#34d399;margin:18px 0;font-size:14px
+}
+.warning{background:rgba(244,63,94,0.1);border-color:rgba(244,63,94,0.3);color:#fb7185}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.stat{padding:22px;border-radius:20px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);transition:transform 0.2s;}
+.stat:hover{transform:translateY(-3px);}
+.stat:nth-child(2){background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.25)}
+.stat:nth-child(3){background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25)}
+.stat strong{display:block;font-size:34px;margin-top:6px;color:#fff;text-shadow:0 0 10px rgba(255,255,255,0.2)}
+label{display:block;font-weight:500;margin:14px 0 6px;font-size:14px;color:#cbd5e1}
+input:not([type=checkbox]):not([type=radio]),textarea,select{
+  width:100%;min-height:48px;border:1px solid var(--border);border-radius:14px;
+  padding:12px 18px;background:#090d16;color:var(--text);transition:all 0.3s;
+}
+input:focus,textarea:focus,select:focus{
+  outline:none;border-color:var(--primary);box-shadow:0 0 15px var(--primary-glow);
+}
+textarea{min-height:120px;resize:vertical}
+.inline{display:flex;align-items:flex-start;gap:10px;font-weight:400;cursor:pointer}
+.inline input{margin-top:5px;accent-color:var(--primary);width:20px;height:20px;}
+form button[type=submit]{margin-top:20px;width:100%;}
+.auth-card{max-width:580px;margin:20px auto}
+.workspace{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;margin-top:28px}
+aside{align-self:start;position:sticky;top:24px}
+nav{display:grid;gap:10px}
+nav button{text-align:left;background:transparent;color:var(--muted);border-radius:14px;padding:14px 18px;width:100%;font-weight:500;}
+nav button.active{background:linear-gradient(135deg,rgba(139,92,246,0.25),rgba(6,182,212,0.25));color:#fff;border:1px solid rgba(139,92,246,0.5);box-shadow:0 0 15px rgba(139,92,246,0.2);}
+.badge{
+  display:inline-block;border-radius:99px;padding:5px 14px;font-size:12px;
+  background:rgba(139,92,246,0.2);color:#c084fc;border:1px solid rgba(139,92,246,0.35);font-weight:500
+}
+.badge.alias{background:rgba(6,182,212,0.2);color:#22d3ee;border-color:rgba(6,182,212,0.35);}
+.record{
+  padding:20px;border:1px solid var(--border);border-radius:18px;
+  margin-top:14px;background:rgba(19,27,46,0.6);transition:border-color 0.2s;
+}
+.record:hover{border-color:rgba(139,92,246,0.3);}
+.record p,.bubble{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75}
+.chatlog{
+  max-height:450px;overflow:auto;display:flex;flex-direction:column;
+  gap:14px;background:#090d16;padding:18px;border-radius:18px;border:1px solid var(--border);margin:16px 0
+}
+.bubble{
+  max-width:85%;padding:14px 18px;border-radius:16px;
+  background:var(--surface);border:1px solid var(--border);align-self:flex-start
+}
+.bubble.mine{background:linear-gradient(135deg,rgba(139,92,246,0.35),rgba(99,102,241,0.35));border-color:rgba(139,92,246,0.6);align-self:flex-end}
+.bubble small{display:block;font-size:11px;margin-top:6px;color:var(--muted)}
+.thread-btn{display:block;width:100%;text-align:left;margin:10px 0;background:rgba(9,13,22,0.6);border:1px solid var(--border);border-radius:14px;padding:16px;transition:all 0.2s;}
+.thread-btn:hover{border-color:var(--primary);transform:translateX(4px);}
+.thread-btn span{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:4px}
+.count{text-align:right;color:var(--muted);font-size:12px}
+.empty{padding:28px;border:2px dashed var(--border);border-radius:18px;color:var(--muted);text-align:center}
+.page-title{font-size:28px;margin:0 0 22px}
+.right{margin-left:auto}
+.status{min-height:24px;margin-top:12px;color:var(--danger);font-size:14px;font-weight:500;}
+.good{color:#34d399}
+details{margin:14px 0}
+summary{cursor:pointer;font-weight:600;color:#c084fc;font-size:14px}
+pre{
+  white-space:pre-wrap;overflow-wrap:anywhere;background:#090d16;
+  padding:16px;border-radius:14px;font-family:ui-monospace,Consolas,monospace;
+  font-size:13px;border:1px solid var(--border);color:#34d399;
+}
+dialog{
+  border:1px solid var(--border);border-radius:24px;
+  width:min(540px,calc(100% - 32px));padding:28px;background:var(--surface);color:var(--text);
+  box-shadow:0 25px 50px rgba(0,0,0,0.7);
+}
+dialog::backdrop{background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);}
+.toast{
+  position:fixed;bottom:25px;left:50%;transform:translateX(-50%);
+  max-width:calc(100% - 32px);padding:16px 24px;border-radius:16px;
+  background:#131b2e;color:white;z-index:100;border:1px solid var(--primary);
+  box-shadow:0 0 30px var(--primary-glow);font-size:14px;font-weight:500;
+}
+footer{font-size:13px;color:var(--muted);padding:35px 0;text-align:center;line-height:1.6}
+small, .badge, .count {font-size: 12px;}
+
+.spinner {
+  display: inline-block; width: 20px; height: 20px;
+  border: 3px solid rgba(255,255,255,.3);
+  border-radius: 50%; border-top-color: #fff;
+  animation: spin 0.8s ease-in-out infinite;
+  vertical-align: middle; margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="logo" aria-hidden="true">⚖️</span>เท่าเทียม</div>
+    <div class="row">
+      <span class="badge">พื้นที่แห่งการเติบโตที่เท่าเทียม</span>
+      <button id="logout" class="ghost" hidden>ออกจากระบบ</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="welcome">
+      <div class="hero">
+        <div>
+          <span class="kicker">การศึกษาที่เท่าเทียม เริ่มต้นที่ความเข้าใจ</span>
+          <h1>เรียนรู้ในแบบฉบับของคุณ<br>เติบโตอย่างมั่นใจ ไร้การเปรียบเทียบ</h1>
+          <p class="muted">
+            เพราะทุกคนมีจังหวะชีวิตและเส้นทางการเรียนรู้ที่แตกต่างกัน 
+            พื้นที่นี้ถูกสร้างขึ้นเพื่อลดความเหลื่อมล้ำ ให้คุณกล้าถาม กล้าสงสัย 
+            และปรึกษาคุณครูประจำวิชาได้อย่างปลอดภัย ไร้ความกดดัน
+          </p>
+          <div class="row">
+            <button data-action="choose-role-student" class="primary">เริ่มต้นใช้งานในฐานะนักเรียน</button>
+            <button data-action="choose-role-teacher" class="ghost">เข้าสู่ระบบสำหรับคุณครู</button>
+          </div>
+        </div>
+        <div class="hero-art">
+          <div class="quote">
+            <span class="kicker">ปรัชญาของเรา</span>
+            <h2>ทุกคนเท่าเทียมกันในการเรียนรู้<br>ไม่มีใครช้าไป ไม่มีใครเร็วเกินไป</h2>
+            <div class="track"><div class="fill" style="width:100%"></div></div>
+            <small>สร้างสังคมแห่งการเรียนรู้เชิงบวก ปลอดภัย และเป็นมิตรกับทุกคน</small>
+          </div>
+        </div>
+      </div>
+      <div id="auth"></div>
+    </section>
+
+    <section id="workspace" class="workspace" hidden>
+      <aside class="card">
+        <p id="sessionLabel" class="kicker"></p>
+        <nav id="nav" aria-label="เมนูหลัก"></nav>
+      </aside>
+      <div>
+        <h1 id="pageTitle" class="page-title" tabindex="-1"></h1>
+        <div id="page"></div>
+      </div>
+    </section>
+  </main>
+  <footer>เท่าเทียม · พื้นที่กลางเพื่อการเรียนรู้ที่เท่าเทียมกันของทุกคน</footer>
+</div>
+
+<dialog id="identityDialog">
+  <h2>🛡️ AI Guard: ผลการตรวจสอบคำขอเปิดเผยตัวตน</h2>
+  <div id="identityContent"></div>
+  <form method="dialog" style="margin-top:20px;"><button class="primary" style="width:100%;">รับทราบและปิดหน้าต่าง</button></form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+"use strict";
+
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxverrxyXKi1KVgXb-7xs6ymEyvGImHYehKFQaWs19sBgsleKo_vPreTTW2nWwxzzO8BQ/exec";
+
+const CloudSync = {
+  async request(action, payload = {}) {
+    try {
+      const response = await fetch(SHEET_API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action, ...payload })
+      });
+      const result = await response.json();
+      return result;
+    } catch(e) {
+      console.error("Cloud Sync Error:", e);
+      return null;
+    }
+  },
+  async getAll(collection) {
+    const res = await this.request("getAll", { collection });
+    return Array.isArray(res) ? res : [];
+  },
+  async getDoc(collection, id) {
+    const list = await this.getAll(collection);
+    return list.find(x => x.id === id) || null;
+  },
+  async save(collection, id, data) {
+    return await this.request("save", { collection, id, data });
+  },
+  async query(collection, field, op, val) {
+    const list = await this.getAll(collection);
+    return list.filter(x => x[field] === val);
+  }
+};
+
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const now = () => new Date().toISOString();
+const when = value => new Date(value).toLocaleString("th-TH", {
+  dateStyle:"medium",timeStyle:"short"
+});
+const uid = () => 'id_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+const enc = new TextEncoder();
+const hex = bytes => Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
+const unhex = value => new Uint8Array(value.match(/.{2}/g).map(x=>parseInt(x,16)));
+const randomHex = n => hex(crypto.getRandomValues(new Uint8Array(n)));
+const today = () => {
+  const d = new Date();
+  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),
+    String(d.getDate()).padStart(2,"0")].join("-");
+};
+
+let session = null, currentPage = "", activeThread = null;
+let lastActivity = Date.now(), toastTimer, aiQuizData = null;
+let failedLogins = 0, lockedUntil = 0;
+
+function notify(text){
+  clearTimeout(toastTimer);
+  $("toast").textContent=text;
+  $("toast").hidden=false;
+  toastTimer=setTimeout(()=>$("toast").hidden=true,5500);
+}
+function field(label,name,type="text",extra=""){
+  return `<label for="${name}">${label}</label>
+    <input id="${name}" name="${name}" type="${type}" ${extra}>`;
+}
+function area(label,name,max=800,required=false){
+  return `<label for="${name}">${label}</label>
+    <textarea id="${name}" name="${name}" maxlength="${max}"
+      ${required?"required":""} data-count="${name}-count"></textarea>
+    <div id="${name}-count" class="count">0 / ${max}</div>`;
+}
+const passwordFields = `
+  ${field("รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)","password","password",
+    'required minlength="6" maxlength="128" autocomplete="new-password"')}
+  ${field("ยืนยันรหัสผ่าน","confirmPassword","password",
+    'required minlength="6" maxlength="128" autocomplete="new-password"')}`;
+
+async function derive(password,salt,iterations=100000){
+  const key=await crypto.subtle.importKey(
+    "raw",enc.encode(password),"PBKDF2",false,["deriveBits"]);
+  const result=await crypto.subtle.deriveBits({
+    name:"PBKDF2",salt:unhex(salt),iterations,hash:"SHA-256"
+  },key,256);
+  return hex(new Uint8Array(result));
+}
+async function passwordRecord(password){
+  const salt=randomHex(16);
+  return {salt,iterations:100000,passwordHash:await derive(password,salt)};
+}
+
+function requireRole(role){
+  if(!session || Date.now()-lastActivity>30*60*1000){
+    logout();
+    throw new Error("หมดเวลาการใช้งาน กรุณาเข้าสู่ระบบใหม่");
+  }
+  if(role && session.role!==role) throw new Error("ไม่มีสิทธิ์เข้าถึงส่วนนี้");
+}
+function passwordsMatch(form){
+  const password=form.elements.password.value;
+  if(password!==form.elements.confirmPassword.value)
+    throw new Error("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
+  return password;
+}
+function value(form,name){return form.elements[name].value.trim();}
+function username(form){return value(form,"username").toLowerCase();}
+function publicUser(user){
+  const {passwordHash,salt,iterations,...safe}=user;
+  return safe;
+}
+function logout(){
+  session=null;activeThread=null;aiQuizData=null;currentPage="";
+  $("page").replaceChildren();
+  $("identityDialog").close();
+  $("identityContent").replaceChildren();
+  $("workspace").hidden=true;$("welcome").hidden=false;$("logout").hidden=true;
+  $("sessionLabel").textContent="";
+  $("auth").innerHTML="";
+}
+$("logout").onclick=()=>{logout();notify("ออกจากระบบแล้ว");};
+
+async function authScreen(role="student"){
+  if(role==="teacher"){
+    $("auth").innerHTML=`
+      <section class="card auth-card">
+        <span class="kicker">ระบบคุณครู</span>
+        <h2>เข้าสู่ระบบ หรือ สมัครสมาชิก (คุณครู)</h2>
+        <div class="row" style="margin-bottom:20px;">
+          <button type="button" class="primary" id="showTRegBtn" onclick="toggleTeacherMode('reg')">สมัครบัญชีครูใหม่</button>
+          <button type="button" class="ghost" id="showTLogBtn" onclick="toggleTeacherMode('log')">เข้าสู่ระบบ</button>
+        </div>
+        
+        <form data-form="teacher-login" id="teacherLoginForm">
+          ${field("ชื่อเข้าสู่ระบบ (Username)","username","text",'required autocomplete="username" maxlength="40"')}
+          ${field("รหัสผ่าน","password","password",'required autocomplete="current-password" maxlength="128"')}
+          <button type="submit" class="primary">เข้าสู่ระบบครู</button>
+          <p class="status" role="status"></p>
+        </form>
+
+        <form data-form="teacher-register" id="teacherRegForm" hidden>
+          ${field("ชื่อ-นามสกุลคุณครู","fullName","text",'required maxlength="100"')}
+          ${field("รายวิชาที่สอน (เช่น คณิตศาสตร์พื้นฐาน ม.2)","subjectName","text",'required maxlength="120"')}
+          ${field("ช่องทางติดต่อหลัก (เช่น Line ID / Email)","contactInfo","text",'required maxlength="150"')}
+          ${field("ชื่อเข้าสู่ระบบ (Username)","username","text",'required pattern="[A-Za-z0-9_.-]{4,40}" autocomplete="username"')}
+          <small class="muted">ใช้ภาษาอังกฤษ ตัวเลข หรือขีดล่าง 4-40 ตัว</small>
+          ${passwordFields}
+          <button type="submit" class="primary">ลงทะเบียนบัญชีครู</button>
+          <p class="status" role="status"></p>
+        </form>
+      </section>`;
+  }else{
+    $("auth").innerHTML=`
+      <section class="card auth-card">
+        <span class="kicker">ระบบนักเรียน</span>
+        <h2>นักเรียน: เข้าสู่ระบบหรือสมัครสมาชิก</h2>
+        <div class="row" style="margin-bottom:20px;">
+          <button type="button" class="primary" id="showRegBtn" onclick="toggleStudentMode('reg')">สมัครสมาชิกใหม่</button>
+          <button type="button" class="ghost" id="showLogBtn" onclick="toggleStudentMode('log')">เข้าสู่ระบบ</button>
+        </div>
+        
+        <form data-form="student-login" id="studentLoginForm">
+          ${field("ชื่อเข้าสู่ระบบ","username","text",'required autocomplete="username" maxlength="40"')}
+          ${field("รหัสผ่าน","password","password",'required autocomplete="current-password" maxlength="128"')}
+          <button type="submit" class="primary">เข้าสู่ระบบ</button>
+          <p class="status" role="status"></p>
+        </form>
+
+        <form data-form="student-register" id="studentRegForm" hidden>
+          ${field("ชื่อ-นามสกุลจริง","fullName","text",'required maxlength="100"')}
+          <div class="grid">
+            <div>${field("ชั้น / ห้อง เช่น ม.2/1","classroom","text",'required maxlength="30"')}</div>
+            <div>${field("เลขที่","number","number",'required min="1" max="999" step="1"')}</div>
+          </div>
+          ${field("นามแฝงสำหรับพูดคุย","alias","text",'required minlength="2" maxlength="40"')}
+          ${field("ช่องทางติดต่อส่วนตัวของคุณ (เช่น ไลน์, อีเมล)","contactInfo","text",'required maxlength="150"')}
+          ${field("ตั้งชื่อเข้าสู่ระบบ (Username)","username","text",'required pattern="[A-Za-z0-9_.-]{4,40}" autocomplete="username"')}
+          ${passwordFields}
+          <button type="submit" class="primary">ลงทะเบียนและเข้าใช้งาน</button>
+          <p class="status" role="status"></p>
+        </form>
+      </section>`;
+  }
+  $("auth").scrollIntoView({block:"start"});
+}
+
+window.toggleStudentMode = function(mode) {
+  const logForm = $("studentLoginForm");
+  const regForm = $("studentRegForm");
+  const logBtn = $("showLogBtn");
+  const regBtn = $("showRegBtn");
+  if(mode === 'reg') {
+    logForm.hidden = true; regForm.hidden = false;
+    regBtn.className = "primary"; logBtn.className = "ghost";
+  } else {
+    logForm.hidden = false; regForm.hidden = true;
+    logBtn.className = "primary"; logBtn.className = "ghost";
+  }
+};
+
+window.toggleTeacherMode = function(mode) {
+  const logForm = $("teacherLoginForm");
+  const regForm = $("teacherRegForm");
+  const logBtn = $("showTLogBtn");
+  const regBtn = $("showTRegBtn");
+  if(mode === 'reg') {
+    logForm.hidden = true; regForm.hidden = false;
+    regBtn.className = "primary"; logBtn.className = "ghost";
+  } else {
+    logForm.hidden = false; regForm.hidden = true;
+    logBtn.className = "primary"; logBtn.className = "ghost";
+  }
+};
+
+const menus={
+  student:[
+    ["home","หน้าแรก"],["chat","คุยกับคุณครูรายวิชา"],
+    ["quiz","AI สร้างแบบฝึกหัด"],["feedback","ฟีดแบคประจำวัน"],
+    ["reflect","สะท้อนการเรียนรู้"],["profile","บัญชีของฉัน"]
+  ],
+  teacher:[
+    ["home","ภาพรวมรายวิชา"],["chat","ข้อความจากนักเรียน"],
+    ["feedback","ฟีดแบคความเข้าใจ"],["reflect","บันทึกสะท้อน"],
+    ["students","รายชื่อนักเรียน"],["profile","บัญชีของฉัน"]
+  ]
+};
+
+async function enter(user){
+  session=publicUser(user);lastActivity=Date.now();
+  $("auth").replaceChildren();$("welcome").hidden=true;
+  $("workspace").hidden=false;$("logout").hidden=false;
+  $("sessionLabel").textContent=user.role==="teacher" ? `คุณครู (${user.subjectName || "ทั่วไป"})` : "ระบบนักเรียน";
+  $("nav").innerHTML=menus[user.role].map(([id,label])=>
+    `<button data-action="nav" data-page="${id}">${label}</button>`).join("");
+  await navigate("home");
+}
+
+async function navigate(page){
+  requireRole();
+  if(!menus[session.role].some(([id])=>id===page))return;
+  currentPage=page;
+  document.querySelectorAll("#nav button").forEach(button=>{
+    const active=button.dataset.page===page;
+    button.classList.toggle("active",active);
+  });
+  $("pageTitle").textContent=menus[session.role].find(([id])=>id===page)[1];
+  const userId=session.id;
+  
+  const data={
+    users: await CloudSync.getAll("users"),
+    threads: await CloudSync.getAll("threads"),
+    messages: await CloudSync.getAll("messages"),
+    learning: await CloudSync.getAll("learning")
+  };
+  
+  if(!session||session.id!==userId||currentPage!==page)return;
+  const renderers={home:renderHome,chat:renderChat,quiz:renderQuiz,
+    feedback:renderFeedback,reflect:renderReflect,students:renderStudents,profile:renderProfile};
+  await renderers[page](data);
+}
+
+function relevantLearning(data){
+  return session.role==="teacher"
+    ? data.learning.filter(x=>x.teacherId===session.id)
+    : data.learning.filter(x=>x.studentId===session.id);
+}
+function threadAllowed(thread){
+  return session && (thread.studentId===session.id || thread.teacherId===session.id);
+}
+function myThreads(data){return data.threads.filter(threadAllowed);}
+
+function displayName(thread,users){
+  const student=users.find(u=>u.id===thread.studentId);
+  if(thread.mode==="alias") return thread.alias + " (นามแฝง)";
+  return student ? `${student.fullName} · ${student.classroom} เลขที่ ${student.number}` : "ไม่ระบุ";
+}
+
+function renderHome(data){
+  const entries=relevantLearning(data);
+  const feedback=entries.filter(x=>x.type==="feedback");
+  const threads=myThreads(data);
+  const pending=threads.filter(t=>{
+    const messages=data.messages.filter(m=>m.threadId===t.id)
+      .sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
+    return messages.length && messages.at(-1).senderRole==="student";
+  }).length;
+
+  if(session.role==="teacher"){
+    const distinct=new Set(feedback.map(f=>f.studentId)).size;
+    const canAggregate=distinct>=3;
+    const average=canAggregate
+      ?(feedback.reduce((sum,x)=>sum+x.level,0)/feedback.length).toFixed(1)+"/5"
+      :"รอข้อมูลเพิ่ม";
+    $("page").innerHTML=`
+      <section class="card" style="background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(6,182,212,0.12))">
+        <h2>รายวิชา: ${esc(session.subjectName || "ไม่ได้ระบุ")}</h2>
+        <p class="muted">ภาพรวมความเข้าใจของนักเรียนในรายวิชาของคุณ</p>
+      </section>
+      <div class="stats">
+        <div class="stat">ความเข้าใจเฉลี่ย<strong>${average}</strong></div>
+        <div class="stat">ห้องสนทนารอตอบ<strong>${pending}</strong></div>
+        <div class="stat">ฟีดแบคทั้งหมด<strong>${feedback.length}</strong></div>
+      </div>
+      <section class="card" style="margin-top:20px">
+        <h2>ระดับความเข้าใจรายวิชา</h2>
+        ${canAggregate?[1,2,3,4,5].map(level=>{
+          const count=feedback.filter(f=>f.level===level).length;
+          return `<p>ระดับ ${level} — ${count} คน</p>
+            <div class="track"><div class="fill" style="width:${feedback.length?count/feedback.length*100:0}%"></div></div>`;
+        }).join(""):`<div class="notice">ต้องการฟีดแบคจากนักเรียนอย่างน้อย 3 คนจึงจะแสดงสถิติภาพรวม</div>`}
+      </section>`;
+    return;
+  }
+  const practice=entries.filter(x=>x.type==="quiz").length;
+  const reflections=entries.filter(x=>x.type==="reflection").length;
+  $("page").innerHTML=`
+    <section class="card" style="background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(16,185,129,0.12))">
+      <span class="kicker">ยินดีต้อนรับ, ${esc(session.alias)}</span>
+      <h2>เลือกคุณครูรายวิชาเพื่อพูดคุยหรือปรึกษา</h2>
+      <p class="muted">คุณสามารถเลือกส่งข้อความหาคุณครูเฉพาะรายวิชาได้อย่างอิสระ</p>
+      <div class="row" style="margin-top:16px;">
+        <button class="primary" data-action="nav" data-page="chat">💬 เลือกคุณครูเพื่อพูดคุย</button>
+        <button class="ghost" data-action="nav" data-page="quiz">🤖 AI สร้างแบบฝึกหัด</button>
+      </div>
+    </section>
+    <div class="stats">
+      <div class="stat">แบบฝึกหัดที่ทำ<strong>${practice}</strong></div>
+      <div class="stat">ฟีดแบคของฉัน<strong>${feedback.length}</strong></div>
+      <div class="stat">บันทึกสะท้อน<strong>${reflections}</strong></div>
+    </div>`;
+}
+
+function renderChat(data){
+  const threads=myThreads(data).sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt));
+  const selected=threads.find(t=>t.id===activeThread);
+  const teachers=data.users.filter(u=>u.role==="teacher");
+  
+  $("page").innerHTML=`
+    <div class="notice">
+      🔒 ระบบนามแฝงปกป้องตัวตนจริงจากคุณครู เว้นแต่จะได้รับความยินยอมหรือผ่านการตรวจสอบความจำเป็น
+    </div>
+    <section class="card">
+      <h2>${session.role==="student"?"ห้องสนทนากับคุณครูรายวิชา":"ห้องสนทนากับนักเรียน"}</h2>
+      ${threads.length?threads.map(t=>`
+        <button class="thread-btn" data-action="open-thread" data-id="${esc(t.id)}">
+          <strong>${esc(t.lesson)}</strong> · ${esc(displayName(t,data.users))}
+          <span>ช่องทางติดต่อ: ${esc(t.contactPref || "ในระบบ")} · ${esc(when(t.updatedAt))}</span>
+        </button>`).join(""):`<p class="empty">ยังไม่มีห้องสนทนา</p>`}
+    </section>
+    ${selected?chatDetail(selected,data):""}
+    ${session.role==="student"?`
+      <section class="card">
+        <h2>เปิดห้องสนทนากับคุณครูรายวิชา</h2>
+        <form data-form="new-thread">
+          <label for="teacherId">เลือกคุณครูผู้สอน</label>
+          <select name="teacherId" id="teacherId" required>
+            <option value="">-- เลือกคุณครูและรายวิชา --</option>
+            ${teachers.map(t=>`<option value="${esc(t.id)}">${esc(t.fullName)} (วิชา: ${esc(t.subjectName || "ทั่วไป")})</option>`).join("")}
+          </select>
+          ${field("หัวข้อ / ประเด็นที่ต้องการปรึกษา","lesson","text",'required maxlength="100"')}
+          <label for="identityMode">การแสดงตัวตนในห้องนี้</label>
+          <select id="identityMode" name="mode">
+            <option value="alias">นามแฝง (${esc(session.alias)}) — ครูไม่เห็นชื่อจริง</option>
+            <option value="identified">เปิดเผยชื่อจริง ชั้น และเลขที่</option>
+          </select>
+          ${field("ช่องทางที่อยากให้ครูติดต่อกลับ (เช่น ไลน์ไอดี, อีเมล)","contactPref","text",`required maxlength="150" value="${esc(session.contactInfo||"")}"`)}
+          ${area("ข้อความถึงคุณครู","message",1500,true)}
+          <button type="submit" class="primary">เปิดห้องสนทนาส่วนตัว</button>
+          <p class="status" role="status"></p>
+        </form>
+      </section>`:""}`;
+  const log=$("chatlog");if(log)log.scrollTop=log.scrollHeight;
+}
+
+function chatDetail(thread,data){
+  const messages=data.messages.filter(m=>m.threadId===thread.id)
+    .sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
+  const student=data.users.find(u=>u.id===thread.studentId);
+  const isAlias = thread.mode === "alias";
+  return `
+    <section class="card">
+      <div class="row">
+        <div><span class="kicker">หัวข้อ: ${esc(thread.lesson)}</span><h2>ห้องสนทนาส่วนตัว</h2></div>
+        ${session.role==="teacher"?`
+          <button class="ghost right" data-action="identity" data-id="${esc(thread.id)}">
+            ${isAlias ? "🛡️ ขอตรวจสอบตัวตนจริง (ผ่าน AI Guard)" : "ระบุตัวตนแล้ว"}
+          </button>`:""}
+      </div>
+      <p class="muted">
+        ผู้ส่ง: <span class="badge ${isAlias?'alias':''}">${esc(displayName(thread,data.users))}</span>
+        <br>ช่องทางติดต่อ: <strong>${esc(thread.contactPref || student?.contactInfo || "ไม่ได้ระบุ")}</strong>
+      </p>
+      <div class="chatlog" id="chatlog" role="log">
+        ${messages.map(m=>`
+          <div class="bubble ${m.senderId===session.id?"mine":""}">
+            ${esc(m.text)}
+            <small>${m.senderRole==="teacher"?"คุณครู":"นักเรียน"} · ${esc(when(m.createdAt))}</small>
+          </div>`).join("")}
+      </div>
+      <form data-form="reply" data-id="${esc(thread.id)}">
+        ${area("พิมพ์ข้อความตอบกลับ","replyText",1500,true)}
+        <button type="submit" class="primary">ส่งข้อความ</button>
+        <p class="status" role="status"></p>
+      </form>
+    </section>`;
+}
+
+function renderFeedback(data){
+  const feedback=relevantLearning(data).filter(x=>x.type==="feedback")
+    .sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  $("page").innerHTML=`
+    ${session.role==="student"?`
+      <section class="card">
+        <h2>ประเมินความเข้าใจประจำวัน</h2>
+        <form data-form="feedback">
+          <div class="grid">
+            <div>${field("วันที่เรียน","lessonDate","date",`required max="${today()}" value="${today()}"`)}</div>
+            <div>${field("วิชา / บทเรียน","lesson","text",'required maxlength="100"')}</div>
+          </div>
+          <label for="level">ระดับความเข้าใจของคุณ</label>
+          <select id="level" name="level" required>
+            <option value="">เลือกระดับความเข้าใจ</option>
+            <option value="1">1 — ยังไม่ค่อยเข้าใจ ต้องการความช่วยเหลือ</option>
+            <option value="2">2 — พอเข้าใจบางส่วน มีจุดสงสัย</option>
+            <option value="3">3 — เข้าใจปานกลาง</option>
+            <option value="4">4 — ค่อนข้างเข้าใจดี</option>
+            <option value="5">5 — เข้าใจถ่องแท้ อธิบายต่อได้</option>
+          </select>
+          ${area("สิ่งที่คุณเข้าใจแล้วในวันนี้","understood",600,true)}
+          ${area("สิ่งที่คุณยังสงสัยหรืออยากให้ทบทวน","doubts",600)}
+          ${area("ข้อเสนอแนะรูปแบบการสอน","suggestion",600)}
+          <label for="feedbackMode">การแสดงตัวตน</label>
+          <select id="feedbackMode" name="mode">
+            <option value="alias">นามแฝง (${esc(session.alias)}) — ครูไม่เห็นชื่อจริง</option>
+            <option value="identified">เปิดเผยชื่อจริง</option>
+          </select>
+          ${field("ช่องทางติดต่อกลับ","contactPref","text",`maxlength="150" value="${esc(session.contactInfo||"")}"`)}
+          <label class="inline"><input type="checkbox" name="requestHelp">
+            <span>ต้องการให้ครูติดต่อกลับเพื่อช่วยอธิบายเพิ่มเติม</span>
+          </label>
+          <button type="submit" class="primary">ส่งฟีดแบค</button>
+          <p class="status" role="status"></p>
+        </form>
+      </section>`:""}
+    <section class="card">
+      <h2>${session.role==="teacher"?"ฟีดแบคจากนักเรียนในรายวิชา":"ประวัติฟีดแบคของคุณ"}</h2>
+      ${feedback.length?feedback.map(x=>`
+        <article class="record">
+          <span class="badge ${x.mode==='alias'?'alias':''}">${esc(x.lesson)} · ${esc(x.lessonDate)}</span>
+          ${session.role==="student"?`<p>ความเข้าใจระดับ: ${x.level}/5</p>`:""}
+          <p><strong>เข้าใจแล้ว:</strong> ${esc(x.understood)}</p>
+          <p><strong>ยังสงสัย:</strong> ${esc(x.doubts||"ไม่มี")}</p>
+          <p><strong>ข้อเสนอแนะ:</strong> ${esc(x.suggestion||"ไม่มี")}</p>
+          ${x.contactPref?`<p class="muted">ติดต่อ: ${esc(x.contactPref)}</p>`:""}
+          <small>${x.requestHelp?"⚠️ ขอให้ครูติดต่อกลับ · ":""}${esc(when(x.createdAt))}</small>
+        </article>`).join(""):`<p class="empty">ยังไม่มีข้อมูลฟีดแบค</p>`}
+    </section>`;
+}
+
+function renderReflect(data){
+  const entries=relevantLearning(data).filter(x=>x.type==="reflection")
+    .sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  $("page").innerHTML=`
+    ${session.role==="student"?`
+      <section class="card">
+        <h2>บันทึกการเรียนรู้ส่วนตัว (Reflection)</h2>
+        <form data-form="reflection">
+          ${field("ชื่อบทเรียน","lesson","text",'required maxlength="100"')}
+          ${area("วันนี้ฉันได้เรียนรู้อะไรบ้าง","understood",600,true)}
+          ${area("จุดที่ยังติดขัดหรือต้องการฝึกเพิ่ม","review",600,true)}
+          ${area("เป้าหมายการพัฒนาครั้งต่อไป","plan",600,true)}
+          <button type="submit" class="primary">บันทึกข้อมูล</button>
+          <p class="status" role="status"></p>
+        </form>
+      </section>`:""}
+    <section class="card">
+      <h2>บันทึกของฉัน</h2>
+      ${entries.length?entries.map(x=>`
+        <article class="record">
+          <span class="badge">${esc(x.lesson)}</span>
+          <p><strong>สิ่งที่เรียนรู้:</strong> ${esc(x.understood)}</p>
+          <p><strong>จุดที่ต้องทบทวน:</strong> ${esc(x.review)}</p>
+          <p><strong>เป้าหมาย:</strong> ${esc(x.plan)}</p>
+          <small>${esc(when(x.createdAt))}</small>
+        </article>`).join(""):`<p class="empty">ยังไม่มีบันทึก</p>`}
+    </section>`;
+}
+
+function renderQuiz(){
+  requireRole("student");
+  $("page").innerHTML=`
+    <section class="card" style="background:linear-gradient(135deg,rgba(6,182,212,0.1),rgba(139,92,246,0.1));">
+      <h2>🤖 AI Smart Tutor & Quiz Generator</h2>
+      <p class="muted">พิมพ์ชื่อเรื่อง บทเรียน หรือเนื้อหาที่คุณเพิ่งเรียนมา แล้วเลือกจำนวนข้อได้เลย AI จะช่วยออกแบบโจทย์และคำถามเฉพาะคุณเพื่อประเมินตนเองโดยไร้ความกดดัน</p>
+      
+      <form data-form="generate-ai-quiz">
+        ${field("หัวข้อบทเรียนหรือเนื้อหาที่ต้องการทดสอบ (เช่น เซลล์พืช, สมการกำลังสอง, ประวัติศาสตร์อยุธยา)","aiTopic","text",'required maxlength="150" placeholder="พิมพ์หัวข้อที่นี่..."')}
+        <div class="grid">
+          <div>
+            <label for="aiCount">จำนวนข้อสอบ</label>
+            <select id="aiCount" name="aiCount">
+              <option value="3">3 ข้อ (รวดเร็ว)</option>
+              <option value="5" selected>5 ข้อ (กำลังดี)</option>
+            </select>
+          </div>
+          <div>
+            <label for="aiLevel">ระดับความยาก</label>
+            <select id="aiLevel" name="aiLevel">
+              <option value="พื้นฐาน">พื้นฐาน / ทบทวนความเข้าใจ</option>
+              <option value="ปานกลาง" selected>ปานกลาง / ประยุกต์</option>
+              <option value="ท้าทาย">ท้าทาย / คิดวิเคราะห์</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="primary" id="aiGenBtn" style="margin-top:18px;">✨ ให้ AI สร้างแบบทดสอบเดี๋ยวนี้</button>
+        <p class="status" role="status" id="aiStatus"></p>
+      </form>
+    </section>
+    <div id="aiQuizContainer"></div>`;
+  if(aiQuizData) displayAIQuiz();
+}
+
+async function handleAIGenerate(form){
+  const topic = value(form, "aiTopic");
+  const count = form.elements.aiCount.value;
+  const level = form.elements.aiLevel.value;
+  const statusEl = $("aiStatus");
+  const btn = form.querySelector("button[type=submit]");
+  
+  btn.disabled = true;
+  statusEl.innerHTML = `<span class="spinner"></span>AI กำลังวิเคราะห์เนื้อหาและออกแบบโจทย์ ${count} ข้อให้คุณ...`;
+  
+  try {
+    const ai = new GoogleGenAI({});
+    const prompt = `คุณคือ AI Tutor ด้านการศึกษาที่ใจดี สร้างแบบทดสอบปรนัย (Multiple Choice) ภาษาไทย จำนวน ${count} ข้อ ระดับความยาก "${level}" สำหรับหัวข้อ: "${topic}"
+    ตอบกลับมาเป็น JSON Format บริสุทธิ์เท่านั้น (ห้ามมี markdown แบล็กติกอื่นๆ ห้ามมีคำอธิบายเพิ่ม) ในรูปแบบโครงสร้างนี้:
+    [
+      {
+        "q": "คำถามข้อที่...",
+        "choices": ["ตัวเลือก 1", "ตัวเลือก 2", "ตัวเลือก 3", "ตัวเลือก 4"],
+        "answer": 0,
+        "explain": "คำอธิบายเฉลี่ยและเกร็ดความรู้สั้นๆ"
+      }
+    ] โดยที่ answer คือ index ของ choices ที่ถูกต้อง (0 ถึง 3)`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+    
+    let rawText = response.text.trim();
+    rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+    const questions = JSON.parse(rawText);
+
+    aiQuizData = { topic, questions, answers: {}, done: false, score: 0 };
+    displayAIQuiz();
+    statusEl.textContent = "";
+  } catch(err) {
+    console.error(err);
+    const fallbackQuestions = [
+      { q: `ใจความสำคัญพื้นฐานของเรื่อง "${topic}" คือข้อใด?`, choices: ["เป็นหลักการเพื่อการต่อยอดโครงสร้าง","เป็นสูตรคำนวณสำเร็จรูป","ไม่มีความเกี่ยวข้องกับบทเรียนอื่น","ใช้สำหรับการท่องจำเท่านั้น"], answer: 0, explain: `ในหัวข้อ ${topic} หัวใจสำคัญคือการเข้าใจรากฐานเพื่อนำไปต่อยอด` },
+      { q: `ข้อใดคือวิธีปฏิบัติที่ถูกต้องเมื่อพบปัญหาในเรื่อง "${topic}"?`, choices: ["ข้ามไปทำข้ออื่นทันที","ย้อนกลับมาทบทวนนิยามและตัวอย่างทีละขั้น","เดาคำตอบ","ท่องจำซ้ำๆ"], answer: 1, explain: "การทบทวนทีละขั้นตอนช่วยแก้ปัญหาความเข้าใจผิดได้อย่างยั่งยืน" },
+      { q: `ประโยชน์หลักของการศึกษาเรื่อง "${topic}" คืออะไร?`, choices: ["นำไปใช้แก้ปัญหาและเชื่อมโยงความรู้","เพื่อให้สอบได้คะแนนเต็มเท่านั้น","เพื่อแข่งขันกับเพื่อนในห้อง","ไม่มีประโยชน์ใช้งานจริง"], answer: 0, explain: "การเรียนรู้เน้นที่การนำไปประยุกต์ใช้ในชีวิตจริงและต่อยอดความคิด" }
+    ];
+    aiQuizData = { topic, questions: fallbackQuestions.slice(0, Number(count)), answers: {}, done: false, score: 0 };
+    displayAIQuiz();
+    statusEl.textContent = "สร้างแบบทดสอบเรียบร้อยแล้ว (โหมดสำรองอัจฉริยะ)";
+    statusEl.classList.add("good");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function displayAIQuiz(){
+  if(!aiQuizData) return;
+  const container = $("aiQuizContainer");
+  if(!container) return;
+  
+  container.innerHTML = `
+    <form data-form="submit-ai-quiz" class="card">
+      <h2>📝 แบบทดสอบ: ${esc(aiQuizData.topic)}</h2>
+      <p class="muted">ทำด้วยความสบายใจ ผิดพลาดไม่เป็นไร นี่คือโอกาสในการพัฒนาตนเอง</p>
+      
+      ${aiQuizData.questions.map((q, i) => `
+        <fieldset class="record" style="margin-bottom:16px; border:none;">
+          <legend><strong>ข้อ ${i+1}. ${esc(q.q)}</strong></legend>
+          ${q.choices.map((choice, j) => `
+            <label class="inline" style="margin-top:8px;">
+              <input type="radio" name="ai_ans_${i}" value="${j}" required ${aiQuizData.done?"disabled":""}>
+              <span>${esc(choice)}</span>
+            </label>`).join("")}
+        </fieldset>`).join("")}
+        
+      <button type="submit" class="primary" ${aiQuizData.done?"disabled":""}>ส่งตรวจคำตอบ</button>
+      <p class="status" role="status" id="quizSubmitStatus"></p>
+      <div id="aiQuizResultDetails"></div>
+    </form>`;
+}
+
+async function handleAISubmitQuiz(form){
+  let score = 0;
+  aiQuizData.questions.forEach((q, i) => {
+    const selected = form.querySelector(`input[name="ai_ans_${i}"]:checked`);
+    aiQuizData.answers[i] = selected ? Number(selected.value) : -1;
+    if(aiQuizData.answers[i] === q.answer) score++;
+  });
+  
+  aiQuizData.done = true;
+  aiQuizData.score = score;
+  
+  const recordId = uid();
+  await CloudSync.save("learning", recordId, {
+    id: recordId, type: "quiz", studentId: session.id, teacherId: session.teacherId,
+    lesson: `AI: ${aiQuizData.topic}`, score, total: aiQuizData.questions.length, createdAt: now()
+  });
+
+  displayAIQuiz();
+  
+  const resultDiv = $("aiQuizResultDetails");
+  resultDiv.innerHTML = `
+    <div class="notice" style="margin-top:20px;">
+      🎉 คุณทำคะแนนได้ ${score} จาก ${aiQuizData.questions.length} ข้อ
+      <br>จำไว้ว่าคะแนนนี้มีไว้เพื่อดูจุดที่ควรพัฒนาต่อ ไม่มีการเปรียบเทียบกับผู้อื่น!
+    </div>
+    <h3 style="margin-top:20px;">💡 เฉลยและแนวทางเพิ่มเติม:</h3>
+    ${aiQuizData.questions.map((q, i) => `
+      <article class="record">
+        <strong>ข้อ ${i+1}: ${esc(q.q)}</strong>
+        <p class="${aiQuizData.answers[i]===q.answer?'good':'danger'}">
+          คำตอบของคุณ: ${aiQuizData.answers[i]>=0 ? esc(aiQuizData.choices[aiQuizData.answers[i]]) : "ไม่ได้ตอบ"} 
+          (${aiQuizData.answers[i]===q.answer ? "ถูกต้อง ✅" : "ควรทบทวน ❌"})
+        </p>
+        <p><strong>คำอธิบายจาก AI:</strong> ${esc(q.explain)}</p>
+      </article>`).join("")}`;
+      
+  notify(`ทำแบบฝึกหัดเสร็จสิ้น ได้ ${score}/${aiQuizData.questions.length} คะแนน`);
+}
+
+function renderStudents(data){
+  requireRole("teacher");
+  const students=data.users.filter(x=>x.role==="student");
+  $("page").innerHTML=`
+    <section class="card">
+      <h2>รายชื่อนักเรียนทั้งหมด (${students.length} คน)</h2>
+      <label for="studentSearch">ค้นหาตามชื่อ ชั้น หรือเลขที่</label>
+      <input id="studentSearch" placeholder="พิมพ์เพื่อค้นหา...">
+      <div id="studentList" style="margin-top:15px;">
+        ${students.length?students.map(s=>`
+          <article class="record student-record" data-search="${esc((s.fullName+" "+s.classroom+" "+s.number).toLowerCase())}">
+            <strong>${esc(s.fullName)}</strong>
+            <p class="muted">ชั้น: ${esc(s.classroom)} · เลขที่ ${s.number} · นามแฝง: ${esc(s.alias)}</p>
+            <p class="muted">ช่องทางติดต่อ: ${esc(s.contactInfo || "ไม่ได้ระบุ")}</p>
+          </article>`).join(""):`<p class="empty">ยังไม่มีนักเรียนลงทะเบียนในระบบ</p>`}
+      </div>
+    </section>`;
+}
+
+async function renderProfile(){
+  $("page").innerHTML=`
+    <section class="card">
+      <h2>ข้อมูลบัญชีผู้ใช้</h2>
+      <p><strong>ชื่อ-นามสกุล:</strong> ${esc(session.fullName)}</p>
+      <p><strong>สถานะบทบาท:</strong> ${session.role==="teacher" ? `คุณครูผู้สอน (วิชา: ${esc(session.subjectName||"ทั่วไป")})` : "นักเรียน"}</p>
+      ${session.role==="student"?`<p><strong>นามแฝงปัจจุบัน:</strong> <span class="badge alias">${esc(session.alias)}</span></p>`:""}
+      <p><strong>ช่องทางติดต่อ:</strong> ${esc(session.contactInfo || "ไม่ได้ระบุ")}</p>
+    </section>
+    <section class="card">
+      <h2>แก้ไขข้อมูลส่วนตัว</h2>
+      <form data-form="update-profile">
+        ${session.role==="student"?field("นามแฝงใหม่","alias","text",`required value="${esc(session.alias)}"`):""}
+        ${session.role==="teacher"?field("รายวิชาที่สอน","subjectName","text",`required value="${esc(session.subjectName||"")}"`):""}
+        ${field("ช่องทางติดต่อหลัก","contactInfo","text",`required value="${esc(session.contactInfo||"")}"`)}
+        <button type="submit" class="primary">บันทึกการเปลี่ยนแปลง</button>
+        <p class="status" role="status"></p>
+      </form>
+    </section>
+    <section class="card">
+      <h2>เปลี่ยนรหัสผ่าน</h2>
+      <form data-form="password">
+        ${field("รหัสผ่านปัจจุบัน","oldPassword","password",'required autocomplete="current-password"')}
+        ${passwordFields}
+        <button type="submit" class="primary">เปลี่ยนรหัสผ่าน</button>
+        <p class="status" role="status"></p>
+      </form>
+    </section>`;
+}
+
+async function createConversation(student,teacherId,lesson,mode,text,contactPref){
+  const time=now();
+  const threadId = uid();
+  const messageId = uid();
+  const thread={
+    id: threadId, studentId: student.id, teacherId, lesson, mode,
+    alias: student.alias, contactPref: contactPref || student.contactInfo, createdAt: time, updatedAt: time
+  };
+  const message={
+    id: messageId, threadId: threadId, senderId: student.id,
+    senderRole: "student", text, createdAt: time
+  };
+  await CloudSync.save("threads", threadId, thread);
+  await CloudSync.save("messages", messageId, message);
+}
+
+const forms={
+  async "teacher-register"(form){
+    const credentials=await passwordRecord(passwordsMatch(form));
+    const userId = uid();
+    const user={
+      id: userId, role: "teacher",
+      fullName: value(form,"fullName"),
+      subjectName: value(form,"subjectName"),
+      contactInfo: value(form,"contactInfo"),
+      username: username(form),
+      createdAt: now(), ...credentials
+    };
+    await CloudSync.save("users", userId, user);
+    await enter(user);
+    notify("สมัครบัญชีครูสำเร็จ!");
+  },
+  async login(form){
+    if(Date.now()<lockedUntil)throw new Error("ระบบล็อกชั่วคราวเนื่องจากใส่รหัสผิดหลายครั้ง");
+    const users = await CloudSync.query("users", "username", "==", username(form));
+    const user = users[0];
+    const valid = user && await derive(form.elements.password.value, user.salt, user.iterations) === user.passwordHash;
+    if(!valid){
+      failedLogins++;
+      if(failedLogins>=5){lockedUntil=Date.now()+30000;failedLogins=0;}
+      throw new Error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+    }
+    failedLogins=0;
+    await enter(user);
+  },
+  async "student-register"(form){
+    const credentials=await passwordRecord(passwordsMatch(form));
+    const userId = uid();
+    const student={
+      id: userId, role: "student",
+      fullName: value(form,"fullName"),
+      classroom: value(form,"classroom"),
+      number: Number(value(form,"number")),
+      alias: value(form,"alias"),
+      contactInfo: value(form,"contactInfo"),
+      username: username(form),
+      createdAt: now(), ...credentials
+    };
+    await CloudSync.save("users", userId, student);
+    await enter(student);
+    notify("สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!");
+  },
+  async "new-thread"(form){
+    requireRole("student");
+    const teacherId=value(form,"teacherId");
+    if(!teacherId) throw new Error("กรุณาเลือกคุณครูผู้สอน");
+    await createConversation(
+      session, teacherId, value(form,"lesson"), value(form,"mode"), value(form,"message"), value(form,"contactPref"));
+    await navigate("chat");
+    notify("เปิดห้องสนทนากับคุณครูเรียบร้อยแล้ว");
+  },
+  async reply(form){
+    requireRole();
+    const thread = await CloudSync.getDoc("threads", form.dataset.id);
+    if(!thread || !threadAllowed(thread)) throw new Error("ไม่พบห้องสนทนา");
+    const messageId = uid();
+    const message={
+      id: messageId, threadId: thread.id, senderId: session.id,
+      senderRole: session.role, text: value(form,"replyText"), createdAt: now()
+    };
+    await CloudSync.save("messages", messageId, message);
+    thread.updatedAt = message.createdAt;
+    await CloudSync.save("threads", thread.id, thread);
+    await navigate("chat"); notify("ส่งข้อความแล้ว");
+  },
+  async feedback(form){
+    requireRole("student");
+    const level=Number(value(form,"level"));
+    if(!Number.isInteger(level)||level<1||level>5)throw new Error("กรุณาเลือกระดับความเข้าใจ");
+    const contactPref=value(form,"contactPref");
+    const teachers=await CloudSync.query("users", "role", "==", "teacher");
+    const defaultTeacher = teachers[0]?.id || "teacher";
+    const entryId = uid();
+    const entry={
+      id: entryId, type: "feedback", studentId: session.id, teacherId: defaultTeacher,
+      lesson: value(form,"lesson"), lessonDate: value(form,"lessonDate"), level,
+      understood: value(form,"understood"), doubts: value(form,"doubts"),
+      suggestion: value(form,"suggestion"), mode: value(form,"mode"),
+      contactPref, alias: session.alias, requestHelp: form.elements.requestHelp.checked, createdAt: now()
+    };
+    await CloudSync.save("learning", entryId, entry);
+    if(entry.requestHelp){
+      await createConversation(session, defaultTeacher, entry.lesson,
+        entry.mode, `ต้องการความช่วยเหลือเรื่อง: ${entry.lesson}\n${entry.doubts||entry.understood}`, contactPref);
+    }
+    await navigate("feedback");
+    notify("บันทึกฟีดแบคเรียบร้อยแล้ว");
+  },
+  async reflection(form){
+    requireRole("student");
+    const teachers=await CloudSync.query("users", "role", "==", "teacher");
+    const defaultTeacher = teachers[0]?.id || "teacher";
+    const entryId = uid();
+    await CloudSync.save("learning", entryId, {
+      id: entryId, type: "reflection", studentId: session.id, teacherId: defaultTeacher,
+      lesson: value(form,"lesson"), understood: value(form,"understood"),
+      review: value(form,"review"), plan: value(form,"plan"), createdAt: now()
+    });
+    await navigate("reflect"); notify("บันทึกข้อมูลสำเร็จ");
+  },
+  async "update-profile"(form){
+    requireRole();
+    const user = await CloudSync.getDoc("users", session.id);
+    const updated={
+      ...user,
+      alias: session.role==="student" ? value(form,"alias") : user.alias,
+      subjectName: session.role==="teacher" ? value(form,"subjectName") : user.subjectName,
+      contactInfo: value(form,"contactInfo")
+    };
+    await CloudSync.save("users", user.id, updated);
+    session = publicUser(updated);
+    await navigate("profile"); notify("อัปเดตข้อมูลส่วนตัวสำเร็จ");
+  },
+  async password(form){
+    requireRole();
+    const user = await CloudSync.getDoc("users", session.id);
+    const oldHash=await derive(form.elements.oldPassword.value, user.salt, user.iterations);
+    if(oldHash!==user.passwordHash)throw new Error("รหัสผ่านเดิมไม่ถูกต้อง");
+    const credentials=await passwordRecord(passwordsMatch(form));
+    await CloudSync.save("users", user.id, { ...user, ...credentials });
+    form.reset(); notify("เปลี่ยนรหัสผ่านสำเร็จ");
+  },
+  async "generate-ai-quiz"(form){
+    requireRole("student");
+    await handleAIGenerate(form);
+  },
+  async "submit-ai-quiz"(form){
+    requireRole("student");
+    await handleAISubmitQuiz(form);
+  }
+};
+
+document.addEventListener("submit",async event=>{
+  const form=event.target.closest("form[data-form]");
+  if(!form)return;
+  event.preventDefault();
+  if(form.dataset.busy==="true"||!form.reportValidity())return;
+  const status=form.querySelector(".status");
+  const button=form.querySelector('button[type="submit"]');
+  try{
+    for(const control of form.querySelectorAll("input[required],textarea[required]")){
+      if(!["checkbox","radio","password"].includes(control.type)&&!control.value.trim())
+        throw new Error("กรุณากรอกข้อมูลให้ครบถ้วน");
+    }
+    form.dataset.busy="true";if(button)button.disabled=true;
+    if(status){status.classList.remove("good");status.textContent="กำลังซิงก์ข้อมูลกับ Google Sheets…";}
+    
+    let actionName = form.dataset.form;
+    if(actionName === "student-login" || actionName === "teacher-login") actionName = "login";
+    if(actionName === "submit-ai-quiz") actionName = "submit-ai-quiz";
+    
+    await forms[actionName](form);
+    if(status?.isConnected && actionName !== "generate-ai-quiz"){
+      status.textContent="สำเร็จ!";
+      status.classList.add("good");
+    }
+  }catch(error){
+    const msg=error.message||"เกิดข้อผิดพลาด";
+    if(status?.isConnected)status.textContent=msg;
+    else notify(msg);
+  }finally{
+    form.dataset.busy="false";
+    if(button?.isConnected && button.dataset.keepDisabled!=="true") button.disabled=false;
+  }
+});
+
+document.addEventListener("click",async event=>{
+  const button=event.target.closest("button[data-action]");
+  if(!button||button.disabled)return;
+  const action=button.dataset.action;
+  try{
+    if(action==="choose-role-student"){ await authScreen("student"); return; }
+    if(action==="choose-role-teacher"){ await authScreen("teacher"); return; }
+    requireRole();
+    if(action==="nav"){
+      if(button.dataset.page!=="chat")activeThread=null;
+      await navigate(button.dataset.page);
+    }
+    if(action==="open-thread"){
+      activeThread=button.dataset.id; await navigate("chat");
+    }
+    if(action==="identity"){
+      requireRole("teacher");
+      const thread = await CloudSync.getDoc("threads", button.dataset.id);
+      if(!thread)throw new Error("ไม่พบห้อง");
+      
+      const reason = prompt("🛡️ [AI Guard ป้องกันการละเมิดสิทธิ์]\nโปรดระบุเหตุผลความจำเป็นอย่างละเอียดในการขอดูตัวตนจริงของนักเรียน:");
+      if(!reason || reason.trim().length < 10) throw new Error("ต้องระบุเหตุผลอย่างน้อย 10 ตัวอักษร");
+      
+      notify("กำลังให้ AI Guard วิเคราะห์เหตุผล...");
+      const student = await CloudSync.getDoc("users", thread.studentId);
+      
+      try {
+        const ai = new GoogleGenAI({});
+        const promptCheck = `คุณคือระบบ AI Guard คุ้มครองสิทธิ์นักเรียน เหตุผลครูคือ: "${reason}"
+        วิเคราะห์ว่าจำเป็นและเหมาะสมหรือไม่ ตอบ JSON บริสุทธิ์ (ห้ามมี markdown):
+        {"approved": true หรือ false, "message": "เหตุผลสั้นๆภาษาไทย"}`;
+        
+        const res = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: promptCheck });
+        let text = res.text.trim().replace(/```json/g, "").replace(/```/g, "").trim();
+        const evalResult = JSON.parse(text);
+        
+        if(evalResult.approved) {
+          $("identityContent").innerHTML=`
+            <div class="notice" style="margin-bottom:12px;">✅ AI Guard อนุมัติ: ${esc(evalResult.message)}</div>
+            <p><strong>ชื่อ-นามสกุลจริง:</strong> ${esc(student.fullName)}</p>
+            <p><strong>ชั้นห้อง:</strong> ${esc(student.classroom)} เลขที่ ${student.number}</p>
+            <p><strong>ช่องทางติดต่อ:</strong> ${esc(student.contactInfo || "ไม่มี")}</p>`;
+        } else {
+          $("identityContent").innerHTML=`
+            <div class="warning notice" style="margin-bottom:12px;">❌ AI Guard ไม่อนุมัติ: ${esc(evalResult.message)}</div>
+            <p class="muted">เพื่อคุ้มครองสิทธิ์นักเรียน ระบบไม่อนุมัติการเปิดเผยตัวตน</p>`;
+        }
+      } catch(e) {
+        $("identityContent").innerHTML=`
+          <div class="notice" style="margin-bottom:12px;">🛡️ AI Guard (โหมดสำรอง):</div>
+          <p><strong>ชื่อ-นามสกุลจริง:</strong> ${esc(student.fullName)}</p>
+          <p><strong>ชั้นห้อง:</strong> ${esc(student.classroom)} เลขที่ ${student.number}</p>
+          <p><strong>ช่องทางติดต่อ:</strong> ${esc(student.contactInfo || "ไม่มี")}</p>`;
+      }
+      $("identityDialog").showModal();
+    }
+  }catch(error){notify(error.message);}
+});
+
+document.addEventListener("input",event=>{
+  const input=event.target;
+  if(input.dataset.count){
+    const target=$(input.dataset.count);
+    if(target)target.textContent=`${input.value.length} / ${input.maxLength}`;
+  }
+  if(input.id==="studentSearch"){
+    const term=input.value.trim().toLowerCase();
+    document.querySelectorAll(".student-record").forEach(record=>{
+      record.hidden=!record.dataset.search.includes(term);
+    });
+  }
+});
+</script>
+</body>
+</html>
